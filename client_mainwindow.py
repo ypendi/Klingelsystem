@@ -33,13 +33,12 @@ class Window(QtWidgets.QWidget):
         MainWindow.setWindowState(QtCore.Qt.WindowMaximized)
         MainWindow.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
         MainWindow.setObjectName("MainWindow")
-        #MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(310, 20, 181, 61))
         font = QtGui.QFont()
-        font.setPointSize(25)
+        font.setPointSize(27)
         font.setBold(True)
         font.setWeight(75)
         self.label.setFont(font)
@@ -100,6 +99,7 @@ class Window(QtWidgets.QWidget):
             self.labelVerbunden.setText("NICHT VERBUNDEN!")
         except:
             print("Error: Nicht mit Server verbunden")
+            self.labelVerbunden.setText("NICHT VERBUNDEN!")
 
     def sende_ich_kann_nicht(self):
         self.clientsocket.message_server("ICH_GEHE_NICHT")
@@ -108,12 +108,12 @@ class Window(QtWidgets.QWidget):
         self.clientsocket.message_server("ICH_GEHE")    
 
     def connect(self):
-
         if self.clientsocket.verbinde_client():
             self.clientsocket.startThread()
             self.labelVerbunden.setText("VERBUNDEN: Es hat noch nicht geklingelt!")
         else:
-            self.labelVerbunden.setText("NICHT VERBUNDEN!")
+            #self.labelVerbunden.setText("NICHT VERBUNDEN!")
+            pass
             
 
     

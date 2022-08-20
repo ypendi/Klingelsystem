@@ -71,10 +71,8 @@ class Client_Receiver(QThread):
                 msg = self.client_socket.recv(1024).decode(self.FORMAT)
 
                 if msg == self.KLINGEL_MSG:
-                    print(msg)
                     self.gotMsg.emit(msg)
                 elif msg == "JEMAND_GEHT":
-                    print(msg)
                     self.gotMsg.emit(msg)
                 else:
                     print("MSG:", msg)    
