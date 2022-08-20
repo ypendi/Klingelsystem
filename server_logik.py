@@ -89,6 +89,12 @@ class Server(QThread):
                 # client.send(send_length)
                 client.send(message)
 
+    def listen_physische_klingel(self):
+        while True:
+            # if physischeKlingel: # wenn echte klingel ausgelöst wird
+            #     self.sende_klingelsignal_an_clients()
+            pass
+
 
     def run(self):
         try:
@@ -97,8 +103,10 @@ class Server(QThread):
             while not self.isInterruptionRequested():
                 clientsocket, addr = server.accept() # wait for new connection, store ip in addr and store socket obj in conn
                 self.clientlist.append(clientsocket)
-                thread = threading.Thread(target=self.handle_client, args=(clientsocket, addr)) # create a new thread of the handle_client function
-                thread.start()
+                handle_clients_thread = threading.Thread(target=self.handle_client, args=(clientsocket, addr)) # create a new thread of the handle_client function
+                handle_clients_thread.start()
+                # physische_klingel_thread = threading.Thread(target=self.listen_physische_klingel)
+                # physische_klingel_thread.start()
                 print(f"[ACTIVE CONNECTIONS]: {threading.activeCount() -1}")
     
         except Exception as e:
