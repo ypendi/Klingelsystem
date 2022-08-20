@@ -21,17 +21,23 @@ class Window(QtWidgets.QWidget):
 
     def setupClientLogik(self):
         self.clientsocket = client_logik.Client_Receiver()
+        if self.clientsocket.verbinde_client():
+            self.labelVerbunden.setText("VERBUNDEN: Es hat noch nicht geklingelt!")
+        else:
+            self.labelVerbunden.setText("NICHT VERBUNDEN!")
         # if connect doesnt work open popup to notify here!
         self.clientsocket.gotMsg.connect(self.empfangen)
 
 
     def setupUi(self, MainWindow):
+        MainWindow.setWindowState(QtCore.Qt.WindowMaximized)
+        MainWindow.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMinimizeButtonHint)
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
+        #MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(320, 60, 131, 61))
+        self.label.setGeometry(QtCore.QRect(310, 20, 181, 61))
         font = QtGui.QFont()
         font.setPointSize(25)
         font.setBold(True)
@@ -40,36 +46,29 @@ class Window(QtWidgets.QWidget):
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
         self.btnEntkoppeln = QtWidgets.QPushButton(self.centralwidget)
-        self.btnEntkoppeln.setGeometry(QtCore.QRect(280, 370, 241, 61))
+        self.btnEntkoppeln.setGeometry(QtCore.QRect(460, 280, 241, 61))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.btnEntkoppeln.setFont(font)
         self.btnEntkoppeln.setObjectName("btnEntkoppeln")
         self.btnEntkoppeln.clicked.connect(self.entkoppeln)
-        self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(70, 190, 681, 61))
+        self.labelVerbunden = QtWidgets.QLabel(self.centralwidget)
+        self.labelVerbunden.setGeometry(QtCore.QRect(10, 120, 771, 61))
         font = QtGui.QFont()
         font.setPointSize(25)
         font.setBold(True)
         font.setWeight(75)
-        self.label_2.setFont(font)
-        self.label_2.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_2.setObjectName("label_2")
+        self.labelVerbunden.setFont(font)
+        self.labelVerbunden.setAlignment(QtCore.Qt.AlignCenter)
+        self.labelVerbunden.setObjectName("labelVerbunden")
         self.btnVerbinden = QtWidgets.QPushButton(self.centralwidget)
-        self.btnVerbinden.setGeometry(QtCore.QRect(40, 370, 231, 61))
+        self.btnVerbinden.setGeometry(QtCore.QRect(110, 280, 231, 61))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.btnVerbinden.setFont(font)
         self.btnVerbinden.setObjectName("btnVerbinden")
         self.btnVerbinden.clicked.connect(self.connect)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.btnTest = QtWidgets.QPushButton(self.centralwidget)
-        self.btnTest.setGeometry(QtCore.QRect(560, 460, 171, 81))
-        font = QtGui.QFont()
-        font.setPointSize(15)
-        self.btnTest.setFont(font)
-        self.btnTest.setObjectName("btnTest")
-        self.btnTest.clicked.connect(self.sende_test)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
         self.menubar.setObjectName("menubar")
@@ -86,8 +85,7 @@ class Window(QtWidgets.QWidget):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label.setText(_translate("MainWindow", "CLIENT"))
         self.btnEntkoppeln.setText(_translate("MainWindow", "GERÄT ENTKOPPELN"))
-        self.label_2.setText(_translate("MainWindow", "ES HAT NOCH NICHT GEKLINGELT!"))
-        self.btnTest.setText(_translate("MainWindow", "TEST"))
+        self.labelVerbunden.setText(_translate("MainWindow", "VERBUNDEN: ES HAT NOCH NICHT GEKLINGELT!"))
         self.btnVerbinden.setText(_translate("MainWindow", "GERÄT VERBINDEN"))
 
 
@@ -99,6 +97,7 @@ class Window(QtWidgets.QWidget):
         try:
             self.clientsocket.message_server("/disconnect")
             self.clientsocket.stopThread()
+            self.labelVerbunden.setText("NICHT VERBUNDEN!")
         except:
             print("Error: Nicht mit Server verbunden")
 
@@ -109,8 +108,13 @@ class Window(QtWidgets.QWidget):
         self.clientsocket.message_server("ICH_GEHE")    
 
     def connect(self):
-        self.clientsocket.verbinde_client()
-        self.clientsocket.startThread()
+
+        if self.clientsocket.verbinde_client():
+            self.clientsocket.startThread()
+            self.labelVerbunden.setText("VERBUNDEN: Es hat noch nicht geklingelt!")
+        else:
+            self.labelVerbunden.setText("NICHT VERBUNDEN!")
+            
 
     
 
@@ -124,11 +128,9 @@ class Window(QtWidgets.QWidget):
                 pass
             self.geklingelt_popup()
         if msg == "JEMAND_GEHT":
-            #if self.geklingelt:
             msgBox.close()
             self.jemand_geht_popup()
             print(msg)
-        #client_geklingelt.main()
     
 
     def geklingelt_popup(self): # wird aufgerufen wenn es klingelt
@@ -137,7 +139,6 @@ class Window(QtWidgets.QWidget):
         msgBox.setIcon(QMessageBox.Information)
         msgBox.setWindowTitle('KLINGEL')
         
-        #msgBox.setStyleSheet("QLabel{min-width: 200px; min-height: 50px}")
         msgBox.setStyleSheet("QPushButton{ width:200px; height:25px; font-size: 13px;}")
 
         msgBox.setFont(QtGui.QFont('Arial', 16))
@@ -158,13 +159,12 @@ class Window(QtWidgets.QWidget):
 
         msgBox.exec_()
 
-    def jemand_geht_popup(self): # wird aufgerufen wenn es klingelt
+    def jemand_geht_popup(self):
         global jgBox
         jgBox = QMessageBox()
         jgBox.setIcon(QMessageBox.Information)
         jgBox.setWindowTitle('JEMAND GEHT')
         
-        #jgBox.setStyleSheet("QLabel{min-width: 200px; min-height: 50px}")
         jgBox.setStyleSheet("QPushButton{ width:200px; height:25px; font-size: 13px;}")
 
         jgBox.setFont(QtGui.QFont('Arial', 16))
@@ -188,14 +188,15 @@ if __name__ == "__main__":
     window = Window()
     window.setupUi(MainWindow)
 
-    # clientsocket = client_logik.Client_Receiver()
-    # clientsocket.gotMsg.connect(window.empfangen)
     window.setupClientLogik()
     window.clientsocket.startThread()
 
     MainWindow.show()
 
     app.exec_()
-    window.clientsocket.disconnect()
+    try:
+        window.clientsocket.disconnect()
+    except:
+        pass
     sys.exit()
     

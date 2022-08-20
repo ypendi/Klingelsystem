@@ -19,7 +19,7 @@ class Client_Receiver(QThread):
         super(QThread, self).__init__()
         self.SERVER_IP = ip
         self.PORT = port
-        self.verbinde_client()
+        # self.verbinde_client()
 
     def startThread(self):
         if self.connected == False:
@@ -39,7 +39,7 @@ class Client_Receiver(QThread):
             if not self.wait(100):
                 self.terminate()
                 if not self.wait(100):
-                    print("Terminate failed!") # asdklfjhaslödjfnoklasdf fragen
+                    print("Terminate failed!")
         self.disconnect()
 
     def verbinde_client(self):
@@ -49,10 +49,12 @@ class Client_Receiver(QThread):
                 self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.client_socket.connect((self.SERVER_IP, self.PORT))
                 print(f"Verbunden:{self.SERVER_IP}:{self.PORT}")
+                return True
             except Exception as e:
                 print("Verbinden fehlgeschlagen", e)
                 self.connected = False
                 self.client_socket = None
+                return False
 
     def disconnect(self):
         self.client_socket.send(self.DISCONNECT_MSG.encode(self.FORMAT))

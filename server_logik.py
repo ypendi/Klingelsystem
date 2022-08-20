@@ -53,10 +53,10 @@ def handle_client(clientsocket, addr):
 
     
     print(f"[DISCONNECT] {addr} disconnected.")
-    print(f"[ACTIVE CONNECTIONS]: {threading.activeCount() -2}")
+    print(f"[ACTIVE CONNECTIONS]: {clientlist.count}")
     clientsocket.close() # close connection
 
-def sende_klingelsignal_an_clients():
+def sende_klingelsignal_an_clients(): # sendet das Klingelsignal
     message = "KLINGEL"
     message = message.encode(FORMAT)
     
