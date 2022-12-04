@@ -5,14 +5,13 @@ from PyQt5.QtCore import pyqtSignal, QThread
 
 class Server(QThread):
     PORT = 5050
-    SERVER = socket.gethostbyname(socket.gethostname()) # set SERVER to current devices IP address
+    SERVER = "192.168.2.120" # set SERVER IP address
     ADDR = (SERVER, PORT)
 
-    HEADER = 64 # every first msg from client to server has to be 64bytes (first msg is amount of bytes of the actual msg)
     FORMAT = 'utf-8'
     DISCONNECT_MSG = "/disconnect"
 
-    clientlist = [] # stores all connected clients
+    clientlist = [] # speichert alle verbundenen clients
 
     def __init__(self, ip=SERVER, port=PORT):
         super(QThread, self).__init__()
@@ -35,6 +34,7 @@ class Server(QThread):
                     print("Terminate failed!")
         self.disconnect()
 
+    # aufsetzen des servers
     def starte_server(self):
         try:
             global server
@@ -44,7 +44,7 @@ class Server(QThread):
         except:
             print("Error: Server läuft bereits")
 
-
+    # wird aufgerufen, wenn ein client sich verbindet (in einem seperaten Thread)
     def handle_client(self, clientsocket, addr):
         print(f"[NEW CONNECTION] addr: {addr}")
 
@@ -52,12 +52,12 @@ class Server(QThread):
 
         while connected:
             try:
-                message = clientsocket.recv(1024).decode(self.FORMAT)
+                message = clientsocket.recv(1024).decode(self.FORMAT) # empfängt nachricht des clients
                 print(f"[{addr}]: {message}")
 
 
-                if message == "ICH_GEHE_NICHT":
-                    pass
+                if message == "ICH_GEHE_NICHT": # wenn die nachricht "vom client ICH_GEHE_NICHT ist"
+                    pass # passiert nichts
                 elif message == "ICH_GEHE": # wenn einer der clients "zur klingel geht"
                     for client in self.clientlist:   # sende signal an alle anderen clients 
                         print(client.getpeername())
@@ -65,9 +65,9 @@ class Server(QThread):
                             message = "JEMAND_GEHT".encode(self.FORMAT)
                             client.send(message)
 
-                elif message == self.DISCONNECT_MSG: # break while loop
-                    connected = False
-                    self.clientlist.remove(clientsocket)
+                elif message == self.DISCONNECT_MSG: # wenn der client entkoppelt
+                    connected = False 
+                    self.clientlist.remove(clientsocket) # von liste löschen
                     break
             except:
                 connected = False
@@ -82,20 +82,21 @@ class Server(QThread):
         message = "KLINGEL"
         message = message.encode(self.FORMAT)
         
-        if not self.clientlist: # list is empty 
+        if not self.clientlist: # wenn keine clients verbunden sind
             print("Error: keine Clients verbunden")
         else:
             for client in self.clientlist:
                 # client.send(send_length)
                 client.send(message)
 
+    # ------------------------------------------- falls das signal der echten Klingel abgegriffen werden soll -------------------------------------------
     def listen_physische_klingel(self):
         while True:
             # if physischeKlingel: # wenn echte klingel ausgelöst wird
             #     self.sende_klingelsignal_an_clients()
             pass
 
-
+    # Mainthread des Servers
     def run(self):
         try:
             server.listen()
@@ -105,7 +106,7 @@ class Server(QThread):
                 self.clientlist.append(clientsocket)
                 handle_clients_thread = threading.Thread(target=self.handle_client, args=(clientsocket, addr)) # create a new thread of the handle_client function
                 handle_clients_thread.start()
-                # physische_klingel_thread = threading.Thread(target=self.listen_physische_klingel)
+                # physische_klingel_thread = threading.Thread(target=self.listen_physische_klingel) # -------------------------------------------
                 # physische_klingel_thread.start()
                 print(f"[ACTIVE CONNECTIONS]: {threading.activeCount() -1}")
     
