@@ -3,6 +3,8 @@ import threading
 
 from PyQt5.QtCore import pyqtSignal, QThread
 
+import RPi.GPIO as GPIO
+
 class Server(QThread):
     PORT = 5050
     SERVER = "192.168.2.120" # set SERVER IP address
@@ -91,10 +93,15 @@ class Server(QThread):
 
     # ------------------------------------------- falls das signal der echten Klingel abgegriffen werden soll -------------------------------------------
     def listen_physische_klingel(self):
+        # input pin vom Klingelsignal
+        input_pin = 17
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(input_pin, GPIO.IN) # pin wird auf input gesetzt
+
         while True:
-            # if physischeKlingel: # wenn echte klingel ausgelöst wird
-            #     self.sende_klingelsignal_an_clients()
-            pass
+            if GPIO.input(input_pin) == 0:
+                print("stromkreis geschlossen.")
+                self.sende_klingelsignal_an_clients()
 
     # Mainthread des Servers
     def run(self):
