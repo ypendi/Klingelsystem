@@ -106,7 +106,7 @@ class Server(QThread):
                 self.clientlist.append(clientsocket)
                 handle_clients_thread = threading.Thread(target=self.handle_client, args=(clientsocket, addr)) # create a new thread of the handle_client function
                 handle_clients_thread.start()
-                # physische_klingel_thread = threading.Thread(target=self.listen_physische_klingel) # -------------------------------------------
+                # physische_klingel_thread = threading.Thread(target=self.listen_physische_klingel) # -------------------------------------------------
                 # physische_klingel_thread.start()
                 print(f"[ACTIVE CONNECTIONS]: {threading.activeCount() -1}")
     
